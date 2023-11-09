@@ -1,4 +1,66 @@
-const mongoose = require('mongoose')
+const User = require('./models/User');
+
+const userController = {
+    addUser: (req, res) => {
+        const newUser = {
+            name: req.body.name,
+            lastName: req.body.lastName,
+            email: req.body.email,
+            password: req.body.password,
+            age: req.body.age
+        };
+
+        User.addUser(newUser, (result) => {
+            res.json({ message: 'Usuario agregado correctamente', userId: result.insertId });
+        });
+    },
+
+    modifyUser: (req, res) => {
+        const modifyUser = {
+            id: req.body.id,
+            name: req.body.name,
+            lastName: req.body.lastName,
+            password: req.body.password,
+            age: req.body.age
+        };
+
+        User.modifyUser(modifyUser, (result) => {
+            res.json({ message: 'Usuario modificado correctamente' });
+        });
+    },
+
+    getUserByEmail: (req, res) => {
+        const identification = {
+            email: req.body.email,
+            password: req.body.password
+        };
+
+        User.getUserByEmail(identification, (result) => {
+            if (result.length > 0) {
+                res.json({ message: 'Inicio de sesión exitoso', user: result[0] });
+            } else {
+                res.status(401).json({ message: 'Inicio de sesión fallido. Verifica tu correo electrónico y contraseña.' });
+            }
+        });
+    },
+
+    getUserByID: (req, res) => {
+        const id = {
+            id: req.params.id
+        };
+
+        User.getUserByID(id, (result) => {
+            if (result.length > 0) {
+                res.json({ message: 'Usuario encontrado', user: result[0] });
+            } else {
+                res.status(404).json({ message: 'Usuario no encontrado' });
+            }
+        });
+    }
+};
+
+module.exports = userController;
+/* const mongoose = require('mongoose')
 const User = require('../models/User');
 const sha256 = require('js-sha256')
 
@@ -92,4 +154,4 @@ exports.update = async (req, res) => {
     })
 
 
-}
+} */
