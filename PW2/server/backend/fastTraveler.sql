@@ -40,7 +40,7 @@ CREATE TABLE `fastTraveler`.`Purchase`(
     `idTravel_purchase`         INT,
     `purchaseDate_purchase`     DATETIME DEFAULT NOW(),
     `amount_purchase`           INT,
-    `total_purchase`            DECidTravel_purchaseIMAL(10,2),
+    `total_purchase`            DECIMAL(10,2),
     `paymentMethod_purchase`    VARCHAR(50),
     FOREIGN KEY (`idUser_purchase`) REFERENCES `fastTraveler`.`User`(`id_user`),
     FOREIGN KEY (`idTravel_purchase`) REFERENCES `fastTraveler`.`Travel`(`id_travel`)
