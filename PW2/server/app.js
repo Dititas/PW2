@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const cors = require('cors');
 const { connection, connectToDatabase } = require('./db.js');
 
 // Middleware para conectar a la base de datos y enviar un mensaje de respuesta
@@ -13,6 +14,8 @@ app.use(async (req, res, next) => {
     res.status(500).send('Error interno del servidor');
   }
 });
+
+app.use(cors());
 
 // Resto de tu configuración de Express y rutas aquí...
 
