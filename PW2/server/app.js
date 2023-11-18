@@ -1,25 +1,42 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const { connection, connectToDatabase } = require('./db.js');
+const db = require('./db'); 
+const helmet = require('helmet');
+const bodyParser = require('body-parser');
 
-// Middleware para conectar a la base de datos y enviar un mensaje de respuesta
-app.use(async (req, res, next) => {
-  try {
-    const message = await connectToDatabase();
-    console.log(message); // Este mensaje se imprimirá en la consola del servidor
-    next(); // Continúa con las siguientes operaciones después de la conexión exitosa
-  } catch (error) {
-    console.error('Error al conectar a la base de datos: ' + error.message);
-    res.status(500).send('Error interno del servidor');
-  }
-});
+
+const userRoutes = require('./routes/userRoutes');
+const travelRoutes = require('./routes/travelRoutes');
+const purchaseRoutes = require('./routes/purchaseRoutes');
+const bookingRoutes = require('./routes/bookingRoutes');
 
 app.use(cors());
+app.options('*', cors());
 
-// Resto de tu configuración de Express y rutas aquí...
+app.use(helmet());
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'none'"],
+      fontSrc: ["'self'", 'http://localhost:2322'],
+    },
+  })
+);
+
+
+app.use((req, res, next) => {  
+  next(); 
+});
+
+app.use('/user', userRoutes);
+app.use('/travel', travelRoutes);
+app.use('/purchase', purchaseRoutes);
+app.use('/booking', bookingRoutes);
 
 const PORT = 2322;
 app.listen(PORT, () => {
   console.log(`Servidor Express escuchando en el puerto ${PORT}`);
 });
+
+app.use(bodyParser.urlencoded({ extended: false }));
