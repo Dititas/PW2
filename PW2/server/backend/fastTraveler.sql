@@ -10,6 +10,13 @@ CREATE TABLE `fastTraveler`.`User`(
     `password_user` VARCHAR(60) NOT NULL
 );
 
+INSERT INTO `fastTraveler`.`User` 
+  (`name_user`, `lastName_user`, `age_user`, `email_user`, `password_user`) 
+VALUES 
+  ('Abdias', 'Gabriel', 25, 'correo@example.com', '123456789');
+  
+  SELECT * FROM `fastTraveler`.`User`;
+
 CREATE TABLE `fastTraveler`.`Travel`(
     `id_travel`             INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `airline_travel`        VARCHAR(100),
@@ -40,7 +47,7 @@ CREATE TABLE `fastTraveler`.`Purchase`(
     `idTravel_purchase`         INT,
     `purchaseDate_purchase`     DATETIME DEFAULT NOW(),
     `amount_purchase`           INT,
-    `total_purchase`            DECidTravel_purchaseIMAL(10,2),
+    `total_purchase`            DECIMAL(10,2),
     `paymentMethod_purchase`    VARCHAR(50),
     FOREIGN KEY (`idUser_purchase`) REFERENCES `fastTraveler`.`User`(`id_user`),
     FOREIGN KEY (`idTravel_purchase`) REFERENCES `fastTraveler`.`Travel`(`id_travel`)
@@ -94,6 +101,7 @@ BEGIN
 END $$
 DELIMITER ;
 
+DROP PROCEDURE `GetUserByID`
 -- Stored Procedure para obtener un usuario por ID
 DELIMITER $$
 CREATE PROCEDURE `GetUserByID`(

@@ -1,4 +1,4 @@
-const User = require('./models/User');
+const User = require('../models/User');
 
 const userController = {
     addUser: (req, res) => {
@@ -7,12 +7,21 @@ const userController = {
             lastName: req.body.lastName,
             email: req.body.email,
             password: req.body.password,
-            age: req.body.age
+            age: req.body.age,
         };
 
-        User.addUser(newUser, (result) => {
-            res.json({ message: 'Usuario agregado correctamente', userId: result.insertId });
-        });
+        User.addUser(newUser)
+            .then((result) => {
+                if (result && result.insertId) {
+                    res.json({ message: 'Usuario agregado correctamente', userId: result.insertId });
+                } else {
+                    res.status(500).json({ message: 'Error al agregar usuario' });
+                }
+            })
+            .catch((error) => {
+                console.error('Error al agregar usuario:', error);
+                res.status(500).json({ message: 'Error al agregar usuario', error: error });
+            });
     },
 
     modifyUser: (req, res) => {
@@ -21,43 +30,136 @@ const userController = {
             name: req.body.name,
             lastName: req.body.lastName,
             password: req.body.password,
-            age: req.body.age
+            age: req.body.age,
         };
 
-        User.modifyUser(modifyUser, (result) => {
-            res.json({ message: 'Usuario modificado correctamente' });
-        });
+        User.modifyUser(modifyUser)
+            .then((result) => {
+                if (result && result.affectedRows > 0) {
+                    res.json({ message: 'Usuario modificado correctamente' });
+                } else {
+                    res.status(500).json({ message: 'Error al modificar usuario' });
+                }
+            })
+            .catch((error) => {
+                console.error('Error al modificar usuario:', error);
+                res.status(500).json({ message: 'Error al modificar usuario', error: error });
+            });
     },
 
     getUserByEmail: (req, res) => {
         const identification = {
             email: req.body.email,
-            password: req.body.password
+            password: req.body.password,
         };
 
-        User.getUserByEmail(identification, (result) => {
-            if (result.length > 0) {
-                res.json({ message: 'Inicio de sesión exitoso', user: result[0] });
-            } else {
-                res.status(401).json({ message: 'Inicio de sesión fallido. Verifica tu correo electrónico y contraseña.' });
-            }
-        });
+        User.getUserByEmail(identification)
+            .then((result) => {
+                if (result && result.length > 0) {
+                    res.json({ message: 'Inicio de sesión exitoso', user: result[0] });
+                } else {
+                    res.status(401).json({ message: 'Inicio de sesión fallido. Verifica tu correo electrónico y contraseña.' });
+                }
+            })
+            .catch((error) => {
+                console.error('Error al obtener usuario por correo electrónico:', error);
+                res.status(500).json({ message: 'Error al obtener usuario por correo electrónico', error: error });
+            });
     },
 
-    getUserByID: (req, res) => {
-        const id = {
-            id: req.params.id
-        };
+    getUserByID: async (req, res) => {
+        try {
+            const id = req.params.id;
 
-        User.getUserByID(id, (result) => {
-            if (result.length > 0) {
-                res.json({ message: 'Usuario encontrado', user: result[0] });
+            const result = await User.getUserByID({ id });
+
+            if (result !== null) {
+                res.json({ message: 'Usuario encontrado', user: result });
             } else {
                 res.status(404).json({ message: 'Usuario no encontrado' });
             }
-        });
+        } catch (error) {
+            console.error("Error: ", error);
+            res.status(500).json({ message: 'Error al obtener usuario por ID', error: error });
+        }
     }
 };
+
+/* const userController = {
+    addUser: (req, res) => {
+      const newUser = {
+        name: req.body.name,
+        lastName: req.body.lastName,
+        email: req.body.email,
+        password: req.body.password,
+        age: req.body.age,
+      };
+    
+      User.addUser(newUser, (result) => {
+        if (result) {
+          res.json({ message: 'Usuario agregado correctamente', userId: result.insertId });
+        } else {
+          res.status(500).json({ message: 'Error al agregar usuario' });
+        }
+      });
+    },
+    
+    modifyUser: (req, res) => {
+      const modifyUser = {
+        id: req.body.id,
+        name: req.body.name,
+        lastName: req.body.lastName,
+        password: req.body.password,
+        age: req.body.age,
+      };
+    
+      User.modifyUser(modifyUser, (result) => {
+        if (result) {
+          res.json({ message: 'Usuario modificado correctamente' });
+        } else {
+          res.status(500).json({ message: 'Error al modificar usuario' });
+        }
+      });
+    },
+    
+    getUserByEmail: (req, res) => {
+      const identification = {
+        email: req.body.email,
+        password: req.body.password,
+      };
+    
+      User.getUserByEmail(identification, (result) => {
+        if (result) {
+          if (result.length > 0) {
+            res.json({ message: 'Inicio de sesión exitoso', user: result[0] });
+          } else {
+            res.status(401).json({ message: 'Inicio de sesión fallido. Verifica tu correo electrónico y contraseña.' });
+          }
+        } else {
+          res.status(500).json({ message: 'Error al obtener usuario por correo electrónico' });
+        }
+      });
+    },
+
+    getUserByID: async (req, res) => {
+        try {
+            const id = req.params.id;
+    
+            const result = await User.getUserByID({ id });
+    
+            if (result !== null) {
+                console.log("controlador1");
+                res.json({ message: 'Usuario encontrado', user: result });
+            } else {
+                console.log("controlador2");
+                res.status(404).json({ message: 'Usuario no encontrado' });
+            }
+        } catch (error) {
+            console.error("controlador3:", error);
+            res.status(500).json({ message: 'Error al obtener usuario por ID' });
+        }
+    }
+}; */
 
 module.exports = userController;
 /* const mongoose = require('mongoose')

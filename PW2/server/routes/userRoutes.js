@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const userController = require('./controllers/userController');
+const userController = require('../controllers/userController');
 
 // Rutas para agregar, modificar, obtener por correo electrónico y obtener por ID
 router.post('/add', userController.addUser); // Usamos POST para agregar un nuevo usuario

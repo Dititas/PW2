@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const purchaseController = require('./controllers/purchaseController');
+const purchaseController = require('../controllers/purchaseController');
 
 router.post('/add', purchaseController.addPurchase);
 router.get('/getById/:id', purchaseController.getPurchaseById);
