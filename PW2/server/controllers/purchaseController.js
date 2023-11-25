@@ -1,33 +1,37 @@
-const Purchase = require('../models/Purchase');
-
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
 const purchaseController = {
-    addPurchase: (req, res) => {
-        const newPurchase = {
-            userID: req.body.userID,
-            travelID: req.body.travelID,
-            amount: req.body.amount,
-            total: req.body.total,
-            paymentMethod: req.body.paymentMethod
-        };
+    addPurchase: async (req, res) => {
+        try {
+            const newPurchase = {
+                userId_purchase: req.body.userID,
+                travelId_purchase: req.body.travelID,
+                amount_purchase: req.body.amount,
+                total_purchase: req.body.total,
+                paymentMethod_purchase: req.body.paymentMethod
+            };
 
-        Purchase.addPurchase(newPurchase)
-            .then((result) => {
-                res.json({ message: 'Compra agregada correctamente', purchaseId: result.insertId });
-            })
-            .catch((error) => {
-                console.error('Error al agregar compra:', error);
-                res.status(500).json({ message: 'Error al agregar compra', error: error });
+            const result = await prisma.purchase.create({
+                data: newPurchase
             });
+
+            res.json({ message: 'Compra agregada correctamente', purchaseId: result.id_purchase });
+        } catch (error) {
+            console.error('Error al agregar compra:', error);
+            res.status(500).json({ message: 'Error al agregar compra', error: error });
+        }
     },
 
     getPurchaseById: async (req, res) => {
         try {
-            const purchaseId = req.params.id;
-            const result = await Purchase.getPurchaseById(purchaseId);
+            const purchaseId = parseInt(req.params.id);
+            const result = await prisma.purchase.findUnique({
+                where: { id_purchase: purchaseId }
+            });
 
-            if (result.length > 0) {
-                res.json({ purchase: result[0] });
+            if (result !== null) {
+                res.json({ purchase: result });
             } else {
                 res.status(404).json({ message: 'Compra no encontrada' });
             }
@@ -39,8 +43,10 @@ const purchaseController = {
 
     getPurchasesByUserId: async (req, res) => {
         try {
-            const userId = req.params.id;
-            const result = await Purchase.getPurchasesByUserId(userId);
+            const userId = parseInt(req.params.id);
+            const result = await prisma.purchase.findMany({
+                where: { userId_purchase: userId }
+            });
 
             res.json({ purchases: result });
         } catch (error) {
@@ -49,40 +55,5 @@ const purchaseController = {
         }
     }
 };
-/* const purchaseController = {
-    addPurchase: (req, res) => {
-        const newPurchase = {
-            userID: req.body.userID,
-            travelID: req.body.travelID,
-            amount: req.body.amount,
-            total: req.body.total,
-            paymentMethod: req.body.paymentMethod
-        };
-
-        Purchase.addPurchase(newPurchase, (result) => {
-            res.json({ message: 'Compra agregada correctamente', purchaseId: result.insertId });
-        });
-    },
-
-    getPurchaseById: (req, res) => {
-        const purchaseId = req.params.id;
-
-        Purchase.getPurchaseById(purchaseId, (result) => {
-            if (result.length > 0) {
-                res.json({ purchase: result[0] });
-            } else {
-                res.status(404).json({ message: 'Compra no encontrada' });
-            }
-        });
-    },
-
-    getPurchasesByUserId: (req, res) => {
-        const userId = req.params.id;
-
-        Purchase.getPurchasesByUserId(userId, (result) => {
-            res.json({ purchases: result });
-        });
-    }
-}; */
 
 module.exports = purchaseController;

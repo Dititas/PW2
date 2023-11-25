@@ -1,0 +1,75 @@
+// schema.prisma
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/client"
+}
+
+datasource db {
+  provider = "mysql" 
+  url      = env("mysql://root:admin@localhost:3306/fastTraveler") 
+}
+
+
+// Define el modelo para la tabla User
+model User {
+  id_user        Int       @id @default(autoincrement())
+  name_user      String?
+  lastName_user  String?
+  age_user       Int?
+  email_user     String    @unique
+  password_user  String
+  // Añade la relación inversa para Booking
+  Booking        Booking[]
+  // Añade la relación inversa para Purchase
+  Purchase       Purchase[]
+}
+
+// Define el modelo para la tabla Travel
+model Travel {
+  id_travel             Int       @id @default(autoincrement())
+  airline_travel        String?
+  flightNumber_travel   String?
+  origin_travel         String?
+  destination_travel    String?
+  departureDate_travel  DateTime?
+  arrivalDate_travel    DateTime?
+  price_travel          Float?
+  duration_travel       Int?
+  // Añade la relación inversa para Booking (ida)
+  OutboundFlight        Booking[] @relation("OutboundFlight")
+  // Añade la relación inversa para Booking (vuelta)
+  ReturnFlight          Booking[] @relation("ReturnFlight")
+  // Añade la relación inversa para Purchase
+  Purchase             Purchase[]
+}
+
+// Define el modelo para la tabla Booking
+model Booking {
+  id_booking               Int       @id @default(autoincrement())
+  idUser_booking           Int?
+  idOutboundFlight_booking Int?
+  idReturnFlight_booking   Int?
+  reservationDate_booking  DateTime?
+  amountPeople_booking     Int?
+  // Añade la relación para User
+  User                      User?      @relation(fields: [idUser_booking], references: [id_user])
+  // Añade la relación para Travel (ida)
+  OutboundFlight            Travel?    @relation("OutboundFlight", fields: [idOutboundFlight_booking], references: [id_travel])
+  // Añade la relación para Travel (vuelta)
+  ReturnFlight              Travel?    @relation("ReturnFlight", fields: [idReturnFlight_booking], references: [id_travel])
+}
+
+// Define el modelo para la tabla Purchase
+model Purchase {
+  id_purchase             Int       @id @default(autoincrement())
+  idUser_purchase         Int?
+  idTravel_purchase       Int?
+  purchaseDate_purchase   DateTime? @default(now())
+  amount_purchase         Int?
+  total_purchase          Float?
+  paymentMethod_purchase  String?
+  // Añade la relación para User
+  User                    User?      @relation(fields: [idUser_purchase], references: [id_user])
+  // Añade la relación para Travel
+  Travel                  Travel?    @relation(fields: [idTravel_purchase], references: [id_travel])
+}

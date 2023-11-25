@@ -1,35 +1,40 @@
-const Travel = require('../models/Travel');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
 const travelController = {
-    addTravel: (req, res) => {
-        const newTravel = {
-            airline: req.body.airline,
-            flightNumber: req.body.flightNumber,
-            origin: req.body.origin,
-            destination: req.body.destination,
-            departureDate: req.body.departureDate,
-            arrivalDate: req.body.arrivalDate,
-            price: req.body.price,
-            duration: req.body.duration
-        };
+    addTravel: async (req, res) => {
+        try {
+            const newTravel = {
+                airline_travel: req.body.airline,
+                flightNumber_travel: req.body.flightNumber,
+                origin_travel: req.body.origin,
+                destination_travel: req.body.destination,
+                departureDate_travel: req.body.departureDate,
+                arrivalDate_travel: req.body.arrivalDate,
+                price_travel: req.body.price,
+                duration_travel: req.body.duration
+            };
 
-        Travel.addTravel(newTravel)
-            .then((result) => {
-                res.json({ message: 'Viaje agregado correctamente', travelId: result.insertId });
-            })
-            .catch((error) => {
-                console.error('Error al agregar viaje:', error);
-                res.status(500).json({ message: 'Error al agregar viaje', error: error });
+            const result = await prisma.travel.create({
+                data: newTravel
             });
+
+            res.json({ message: 'Viaje agregado correctamente', travelId: result.id_travel });
+        } catch (error) {
+            console.error('Error al agregar viaje:', error);
+            res.status(500).json({ message: 'Error al agregar viaje', error: error });
+        }
     },
 
     getTravelById: async (req, res) => {
         try {
-            const travelId = req.params.id;
-            const result = await Travel.getTravelById(travelId);
+            const travelId = parseInt(req.params.id);
+            const result = await prisma.travel.findUnique({
+                where: { id_travel: travelId }
+            });
 
-            if (result.length > 0) {
-                res.json({ travel: result[0] });
+            if (result !== null) {
+                res.json({ travel: result });
             } else {
                 res.status(404).json({ message: 'Viaje no encontrado' });
             }
@@ -41,7 +46,7 @@ const travelController = {
 
     getAllTravels: async (req, res) => {
         try {
-            const result = await Travel.getAllTravels();
+            const result = await prisma.travel.findMany();
             res.json({ travels: result });
         } catch (error) {
             console.error('Error al obtener todos los viajes:', error);
@@ -49,42 +54,5 @@ const travelController = {
         }
     }
 };
-
-/* const travelController = {
-    addTravel: (req, res) => {
-        const newTravel = {
-            airline: req.body.airline,
-            flightNumber: req.body.flightNumber,
-            origin: req.body.origin,
-            destination: req.body.destination,
-            departureDate: req.body.departureDate,
-            arrivalDate: req.body.arrivalDate,
-            price: req.body.price,
-            duration: req.body.duration
-        };
-
-        Travel.addTravel(newTravel, (result) => {
-            res.json({ message: 'Viaje agregado correctamente', travelId: result.insertId });
-        });
-    },
-
-    getTravelById: (req, res) => {
-        const travelId = req.params.id;
-
-        Travel.getTravelById(travelId, (result) => {
-            if (result.length > 0) {
-                res.json({ travel: result[0] });
-            } else {
-                res.status(404).json({ message: 'Viaje no encontrado' });
-            }
-        });
-    },
-
-    getAllTravels: (req, res) => {
-        Travel.getAllTravels((result) => {
-            res.json({ travels: result });
-        });
-    }
-}; */
 
 module.exports = travelController;
